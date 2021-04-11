@@ -6,9 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"encoding/json"
+	"strings"
 )
 
-func getStats(url string) {
+func getStats(url string) []string {
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -57,16 +58,26 @@ func getStats(url string) {
 		fmt.Println("error:", err)
 	}
 
-	resultInMH := metrics.Data.Currenthashrate / 1000000
+	prefix := "ethermine"
 
-	fmt.Printf("%+v\n", &metrics)
+	var metricsOut []string
 
-	fmt.Println("Current Hashrate in MH/s: ", resultInMH)
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %f", prefix, "current_hashrate", metrics.Data.Currenthashrate))
+
+	return metricsOut
+	
 }
 
-func main() {
+func MetricsHttp(w http.ResponseWriter, r *http.Request) {
 	const ethAddress = ""
 	url := fmt.Sprintf("https://api.ethermine.org/miner/%s/currentStats", ethAddress)
 
-	getStats(url)
+	allOut := getStats(url)
+	fmt.Fprintln(w, strings.Join(allOut, "\n"))
+}
+
+func main() {
+	port := "9118"
+	http.HandleFunc("/metrics", MetricsHttp)
+	panic(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
