@@ -11,7 +11,6 @@ import (
 
 func getStats(url string) []string {
 	req, err := http.NewRequest("GET", url, nil)
-
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -42,8 +41,8 @@ func getStats(url string) []string {
 			Invalidshares    int         `json:"invalidShares"`
 			Staleshares      int         `json:"staleShares"`
 			Averagehashrate  float64     `json:"averageHashrate"`
-			Activeworkers    int         `json:"activeWorkers"`
-			// Unpaid           int64       `json:"unpaid"`
+			// Activeworkers    int         `json:"activeWorkers"`
+			Unpaid           int64       `json:"unpaid"`
 			// Unconfirmed      interface{} `json:"unconfirmed"`
 			// Coinspermin      float64     `json:"coinsPerMin"`
 			// Usdpermin        float64     `json:"usdPerMin"`
@@ -62,8 +61,14 @@ func getStats(url string) []string {
 
 	var metricsOut []string
 
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %b", prefix, "reported_hashrate", metrics.Data.Reportedhashrate))
 	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %f", prefix, "current_hashrate", metrics.Data.Currenthashrate))
-
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %f", prefix, "avarage_hashrate", metrics.Data.Averagehashrate))
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %b", prefix, "valid_shares", metrics.Data.Validshares))
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %b", prefix, "invalid_shares", metrics.Data.Invalidshares))
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %b", prefix, "stale_shares", metrics.Data.Staleshares))
+	metricsOut = append(metricsOut, fmt.Sprintf("%v_%v %b", prefix, "unpaid_balance", metrics.Data.Unpaid))
+	
 	return metricsOut
 	
 }
